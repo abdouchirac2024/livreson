@@ -1,0 +1,10 @@
+export const JWT_TOKEN: string = 'auth_token';
+export const JWT_TOKEN_EXPIRATION: string = 'tokenExpiration';
+export const USER_KEY: string = 'auth_user';
+export const QUARTERS_KEY: string = 'quarters';
+export const COURSIER_KEY: string = 'deliver_men';
+export const SHOP_KEY: string = 'shops';
+export const PHONE_REGEX: string = '^6\\d{8}$';
+export const REGEX_DIGIT_ONLY: string = '[0-9]*';
+export const DATE_FORMAT_PRIMENG: string = 'yy-mm-dd HH:mm:ss';
+export const DATE_FORMAT: string = 'dd-MM-yyyy';

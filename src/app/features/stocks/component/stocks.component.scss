@@ -1,0 +1,157 @@
+// src/app/features/stocks/component/stocks.component.scss
+
+// Styles de base pour le conteneur principal
+:host {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+}
+
+// Style pour le titre et les filtres
+.flex {
+  margin-bottom: 1.5rem;
+  
+  h2 {
+    margin-bottom: 1rem;
+    color: var(--text-color);
+  }
+}
+
+// Style pour la grille des filtres
+.grid {
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  .field {
+    margin-bottom: 0.5rem;
+  }
+}
+
+// Style pour les boutons
+.p-button {
+  margin-right: 0.5rem;
+  
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+// Style pour le tableau
+:host ::ng-deep .p-datatable {
+  .p-datatable-header {
+    background: var(--surface-section);
+    border: 1px solid var(--surface-border);
+    border-bottom: none;
+  }
+
+  .p-datatable-thead > tr > th {
+    background: var(--surface-section);
+    color: var(--text-color);
+    font-weight: 600;
+    padding: 1rem;
+  }
+
+  .p-datatable-tbody > tr > td {
+    padding: 1rem;
+    border: 1px solid var(--surface-border);
+  }
+
+  .p-datatable-tbody > tr:hover {
+    background: var(--surface-hover);
+  }
+}
+
+// Style pour les menus déroulants
+:host ::ng-deep .p-dropdown {
+  width: 100%;
+  min-width: 200px;
+}
+
+// Style pour les dialogues
+:host ::ng-deep .p-dialog {
+  .p-dialog-header {
+    background: var(--surface-section);
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .p-dialog-content {
+    padding: 1.5rem;
+  }
+
+  .p-dialog-footer {
+    border-top: 1px solid var(--surface-border);
+    padding: 1rem;
+  }
+}
+
+// Style pour les menus
+:host ::ng-deep .p-menuitem.menu-item-primary > .p-menuitem-link {
+  background-color: var(--primary-color, #007bff) !important;
+  color: var(--primary-color-text, white) !important;
+
+  .p-menuitem-icon, .p-menuitem-text {
+    color: var(--primary-color-text, white) !important;
+  }
+
+  &:hover {
+    background-color: var(--primary-700, #0056b3) !important;
+  }
+}
+
+// Style pour les panneaux déroulants
+:host ::ng-deep .p-dropdown-panel {
+  max-height: 250px;
+  overflow: auto;
+  z-index: 9999;
+  background-color: white !important;
+  border: 1px solid #ccc !important;
+}
+
+:host ::ng-deep .p-dropdown-items-wrapper {
+  max-height: 200px !important;
+  overflow-y: auto !important;
+}
+
+:host ::ng-deep .p-dropdown-item {
+  color: black !important;
+  padding: 8px 12px !important;
+  display: block !important;
+}
+
+// Style pour les panneaux déroulants personnalisés
+:host ::ng-deep .custom-dropdown-panel-force {
+  z-index: 99999 !important;
+  background-color: white !important;
+  border: 1px solid #ccc !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+:host ::ng-deep .custom-dropdown-panel-force .p-dropdown-items-wrapper {
+  max-height: 250px !important;
+  overflow-y: auto !important;
+}
+
+:host ::ng-deep .custom-dropdown-panel-force .p-dropdown-item {
+  color: black !important;
+  padding: 8px 12px !important;
+}
+
+// Style pour les messages
+:host ::ng-deep .p-toast {
+  z-index: 1000;
+}
+
+// Style pour les listes dans le tableau
+ul.list-none {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    margin-bottom: 0.25rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}

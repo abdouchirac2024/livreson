@@ -1,0 +1,238 @@
+<div class="card courses-new-container">
+  <h2 class="text-2xl font-semibold mb-6">Liste des Courses</h2>
+  <!-- Section Filtres -->
+  <div class="mb-6 p-fluid grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+
+    <div>
+      <app-field-with-asterisk>Nom/téléphone Client</app-field-with-asterisk>
+      <input type="text" pInputText [(ngModel)]="filterClient" placeholder="Entrer nom ou téléphone" class="w-full">
+    </div>
+
+    <!--    date picker-->
+    <app-date-range-picker [startDate]="startDate" [endDate]="endDate"
+                           (dateRangeSelected)="handleDateRangeSelected($event)"
+    ></app-date-range-picker>
+
+    <!--    cities dropdown-->
+    <div>
+      <app-field-with-asterisk>Ville</app-field-with-asterisk>
+      <p-select [options]="citiesOptions" [(ngModel)]="filterVilleOption" placeholder="Tout"
+                optionLabel="libelle" dataKey="id" [disabled]="isVilleDropdownDisabled" styleClass="w-full">
+      </p-select>
+    </div>
+
+    <!--    order type dropdown-->
+    <div>
+      <app-field-with-asterisk>Type</app-field-with-asterisk>
+      <p-select [options]="typesCourses" [(ngModel)]="selectedTypeCourse" placeholder="Tout"
+                optionLabel="name" dataKey="code" styleClass="w-full">
+      </p-select>
+    </div>
+
+    <!--    quarter dropdown-->
+    <div>
+      <app-field-with-asterisk [showAsterisk]="false">Quartier de livraison</app-field-with-asterisk>
+      <p-select [options]="quartiersOptions" [(ngModel)]="selectedQuarter" placeholder="Tous les quartiers"
+                optionLabel="libelle" dataKey="id" [filter]="quartiersOptions.length > 5"
+                [virtualScrollItemSize]="38" filterBy="libelle" [disabled]="quartiersOptions.length == 0"
+                styleClass="w-full" [virtualScroll]="true">
+      </p-select>
+    </div>
+
+    <!--    order status dropdown-->
+    <div>
+      <app-field-with-asterisk [showAsterisk]="false">Status</app-field-with-asterisk>
+      <p-select [options]="orderStatuses" [(ngModel)]="selectedOrderStatus" placeholder="A traiter"
+                optionLabel="name" dataKey="id" styleClass="w-full">
+      </p-select>
+    </div>
+
+    <!--    coursier drop down-->
+    <div>
+      <app-field-with-asterisk>Coursiers</app-field-with-asterisk>
+      <p-select [options]="coursiersOptions" [(ngModel)]="selectedCoursier" placeholder="Tous les coursiers"
+                optionLabel="fullname" dataKey="id" [filter]="coursiersOptions.length > 5"
+                filterBy="fullname" emptyFilterMessage="Aucun coursier trouvé" [virtualScroll]="true"
+                [virtualScrollItemSize]="38" [disabled]="coursiersOptions.length == 0" styleClass="w-full">
+      </p-select>
+    </div>
+
+    <!--    magasins dropdown-->
+    <div>
+      <app-field-with-asterisk>Magasins</app-field-with-asterisk>
+      <p-select [options]="magasinsOptions" [(ngModel)]="selectedShop" placeholder="Tous les magasins"
+                optionLabel="nom" dataKey="id" [filter]="magasinsOptions.length > 5"
+                filterBy="nom" emptyFilterMessage="Aucun magasin trouvé" [disabled]="magasinsOptions.length <=1"
+                styleClass="w-full" [virtualScroll]="true" [virtualScrollItemSize]="38">
+      </p-select>
+    </div>
+
+    <!--    Zones dropdown-->
+    <div>
+      <app-field-with-asterisk>Zones</app-field-with-asterisk>
+      <p-select [options]="allZones" [(ngModel)]="selectedZone" placeholder="Tout"
+                optionLabel="libelle" dataKey="id" [filter]="allZones.length > 5"
+                filterBy="libelle" emptyFilterMessage="Aucun magasin trouvé" [disabled]="allZones.length <=1"
+                styleClass="w-full">
+      </p-select>
+    </div>
+
+    <!--    search button-->
+    <div class="flex items-end">
+      <p-button type="button" label="RECHERCHER" icon="pi pi-search" (click)="applyFilters()"
+                [loading]="isLoading || isLoadingOptions" class="p-button-primary w-full md:w-auto"></p-button>
+    </div>
+  </div>
+
+  <div class="flex justify-between items-center mb-4">
+    <p-button type="button" label="NOUVELLE COURSE" icon="pi pi-plus" class="p-button-success"
+              (click)="addNewCourse()" pRipple></p-button>
+    <p-button type="button" label="NOUVELLE AFFECTION" icon="pi pi-users" class="p-button-info"
+              (click)="assignCourses()" [disabled]="!selectedCourses || selectedCourses.length === 0"
+              pRipple></p-button>
+  </div>
+
+  <!--  main table to display data-->
+  <p-table #dt [value]="courses" dataKey="id" [(selection)]="selectedCourses"
+           [loading]="isLoading" [lazy]="true" [rows]="25" [showCurrentPageReport]="true"
+           [rowsPerPageOptions]="[25, 50, 100, 500]" [paginator]="true" stripedRows
+           currentPageReportTemplate="Affichage {first} à {last} sur {totalRecords} courses"
+           [globalFilterFields]="['codeCourse', 'client.nom', 'client.telephone', 'ville', 'statutHuman', 'coursiers', 'magasin', 'adresseLivraison']"
+           styleClass="p-datatable-striped p-datatable-gridlines p-datatable-sm courses-table"
+           responsiveLayout="scroll">
+    <ng-template pTemplate="caption">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <span class="text-xl font-semibold mb-2 md:mb-0">Courses</span>
+        <div class="flex">
+          <p-iconfield iconPosition="left" class="ml-auto">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="searchValue"
+              (input)="applyGlobalFilter($event)"
+              placeholder="Search keyword"
+            />
+          </p-iconfield>
+        </div>
+
+        <!--        <span class="p-input-icon-left">-->
+        <!--          <i class="pi pi-search"></i>-->
+        <!--          <input pInputText type="text" (input)="applyGlobalFilter($event)"-->
+        <!--                 placeholder="Recherche globale..." class="p-inputtext-sm w-full md:w-auto"/>-->
+        <!--        </span>-->
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3rem">
+          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+        </th>
+        <th pSortableColumn="ville">Ville
+          <p-sortIcon field="ville"></p-sortIcon>
+        </th>
+        <th pSortableColumn="adresseLivraison" style="min-width: 200px;">Adresse Livraison
+          <p-sortIcon field="adresseLivraison"></p-sortIcon>
+        </th>
+        <th pSortableColumn="magasin">Magasin
+          <p-sortIcon field="magasin"></p-sortIcon>
+        </th>
+        <th pSortableColumn="dateLivraison" style="min-width: 120px;">Date Livraison
+          <p-sortIcon field="dateLivraison"></p-sortIcon>
+        </th>
+        <th pSortableColumn="dateCreation" style="min-width: 150px;">Date Création
+          <p-sortIcon field="dateCreation"></p-sortIcon>
+        </th>
+        <th pSortableColumn="client.nom" style="min-width: 150px;">Client
+          <p-sortIcon field="client.nom"></p-sortIcon>
+        </th>
+        <th pSortableColumn="codeCourse">Code Course
+          <p-sortIcon field="codeCourse"></p-sortIcon>
+        </th>
+        <th pSortableColumn="coursiers">Coursiers
+          <p-sortIcon field="coursiers"></p-sortIcon>
+        </th>
+        <th pSortableColumn="statut">Statut
+          <p-sortIcon field="statut"></p-sortIcon>
+        </th>
+        <th pSortableColumn="montantAchats" class="text-right">Achats
+          <p-sortIcon field="montantAchats"></p-sortIcon>
+        </th>
+        <th pSortableColumn="montantLivraison" class="text-right">Livraison
+          <p-sortIcon field="montantLivraison"></p-sortIcon>
+        </th>
+        <th pSortableColumn="montantTotal" class="text-right">Total
+          <p-sortIcon field="montantTotal"></p-sortIcon>
+        </th>
+        <th pSortableColumn="colisStatut">Colis
+          <p-sortIcon field="colisStatut"></p-sortIcon>
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-course>
+      <tr>
+        <td>
+          <p-tableCheckbox [value]="course"></p-tableCheckbox>
+        </td>
+        <td>{{ course.ville }}</td>
+        <td>{{ course.adresseLivraison }}</td>
+        <td>{{ course.magasin }}</td>
+        <td>{{ course.dateCreation }}</td>
+        <td>{{ course.dateLivraison }}</td>
+        <td>{{ course.client?.nom }} <br> <small>{{ course.client?.telephone }}</small></td>
+        <td>
+          <a [href]="'https://console.v2.firestore.livraison-express.net/office/courses/' + course.id"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="course-id-link">
+            {{ course.codeCourse }}
+          </a>
+        </td>
+        <td>{{ course.coursiers }}</td>
+        <td>
+          <p-tag [value]="course.statutHuman" [severity]="getSeverity(course.statut)"></p-tag>
+        </td>
+        <td class="text-right">{{ course.montantAchats | currency:'XAF':'symbol':'1.0-0' }}</td>
+        <td class="text-right">{{ course.montantLivraison | currency:'XAF':'symbol':'1.0-0' }}</td>
+        <td class="text-right">{{ course.montantTotal | currency:'XAF':'symbol':'1.0-0' }}</td>
+        <td>
+          <p-tag [value]="course.colisStatut | uppercase" [severity]="getColisSeverity(course.colisStatut)"></p-tag>
+          <div *ngIf="course.colisDetails" class="text-xs text-blue-600 mt-1" pTooltip="{{course.colisDetails}}"
+               tooltipPosition="top">
+            <i class="pi pi-info-circle mr-1"></i>Détails
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="14" class="text-center p-4">
+          <div *ngIf="isLoading || isLoadingOptions; else noData">Chargement des données...</div>
+          <ng-template #noData>Aucune course trouvée pour les filtres actuels.</ng-template>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <div
+    class="summary-buttons-fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 p-2 shadow-md border-t border-gray-200 dark:border-gray-700">
+    <div class="flex justify-center flex-wrap gap-2">
+      <p-button label="Total ({{totalRecords}})"
+                styleClass="p-button-sm p-button-secondary p-button-outlined"></p-button>
+      <p-button label="A traiter ({{getCountByStatus(OrderStatusCode.A_TRAITER)}})"
+                styleClass="p-button-sm p-button-info p-button-outlined"></p-button>
+      <p-button label="Non assignées ({{getCountByStatus(OrderStatusCode.NON_ASSIGNE)}})"
+                styleClass="p-button-sm p-button-warning p-button-outlined"></p-button>
+      <p-button label="Terminées ({{getCountByStatus(OrderStatusCode.TERMINE)}})"
+                styleClass="p-button-sm p-button-help p-button-outlined"></p-button>
+      <p-button label="Annulées ({{getCountByStatus(OrderStatusCode.ANNULE)}})"
+                styleClass="p-button-sm p-button-danger p-button-outlined"></p-button>
+      <p-button label="A valider ({{getCountByStatus(OrderStatusCode.AVALIDER)}})"
+                styleClass="p-button-sm p-button-success p-button-outlined"></p-button>
+      <p-button label="A relancer ({{getCountByStatus(OrderStatusCode.A_RELANCER)}})"
+                styleClass="p-button-sm p-button-primary p-button-outlined"></p-button>
+    </div>
+  </div>
+</div>

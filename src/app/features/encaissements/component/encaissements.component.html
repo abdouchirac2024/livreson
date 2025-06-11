@@ -1,0 +1,177 @@
+<!-- preparation.component.html -->
+<div class="p-4">
+  <h2 class="text-xl font-semibold mb-4">Encaissements courses</h2>
+
+  <!-- Filtres dynamiques -->
+  <div class="mb-6 p-fluid grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+
+    <!--    date picker-->
+    <app-date-range-picker [startDate]="startDate" [endDate]="endDate"
+                           (dateRangeSelected)="handleDateRangeSelected($event)">
+    </app-date-range-picker>
+
+    <!--    city drop down-->
+    <div>
+      <app-field-with-asterisk>Ville</app-field-with-asterisk>
+      <p-select [options]="villes" [(ngModel)]="selectedCity" placeholder="Tout"
+                optionLabel="libelle" dataKey="id" [showClear]="selectedCity.id != null"
+                [disabled]="isVilleDropdownDisabled" styleClass="w-full">
+      </p-select>
+    </div>
+
+    <!--    zones drop down-->
+    <div>
+      <app-field-with-asterisk>Zones</app-field-with-asterisk>
+      <p-select [options]="allZones" [(ngModel)]="selectedZone" placeholder="Tout"
+                optionLabel="libelle" dataKey="id" [showClear]="selectedZone.id != null" [filter]="allZones.length > 5"
+                filterBy="libelle" emptyFilterMessage="Aucun magasin trouvé" [disabled]="allZones.length <=1"
+                styleClass="w-full">
+      </p-select>
+    </div>
+
+    <!--    magasin drop down-->
+    <div>
+      <app-field-with-asterisk>Magasins</app-field-with-asterisk>
+      <p-select [options]="magasins" [(ngModel)]="selectedShop" placeholder="Tous les magasins"
+                optionLabel="nom" dataKey="id" [showClear]="selectedShop.id != null" [filter]="magasins.length > 5"
+                filterBy="nom" emptyFilterMessage="Aucun magasin trouvé" [disabled]="magasins.length <=1"
+                styleClass="w-full" [virtualScroll]="true" [virtualScrollItemSize]="38">
+      </p-select>
+    </div>
+
+    <!--    coursier drop down-->
+    <div>
+      <app-field-with-asterisk>Coursiers</app-field-with-asterisk>
+      <p-select [options]="coursiers" [(ngModel)]="selectedCoursier" placeholder="Tous les coursiers"
+                optionLabel="fullname" dataKey="id" [showClear]="selectedCoursier.id != null"
+                [filter]="coursiers.length > 5"
+                filterBy="fullname" emptyFilterMessage="Aucun coursier trouvé" [virtualScroll]="true"
+                [virtualScrollItemSize]="38" [disabled]="coursiers.length == 0" styleClass="w-full">
+      </p-select>
+    </div>
+
+    <!--    statut course-->
+    <div>
+      <app-field-with-asterisk>Status</app-field-with-asterisk>
+      <p-select [options]="orderStatuses" [(ngModel)]="selectedOrderStatus" placeholder="A traiter"
+                optionLabel="name" dataKey="id" [showClear]="selectedOrderStatus.id != null" styleClass="w-full">
+      </p-select>
+    </div>
+
+
+    <div class="flex items-end">
+      <p-button type="button" icon="pi pi-refresh" [rounded]="true" label="{{'search' | translate}}"
+                (click)="onFilterChange()" class="w-full md:w-auto mr-4"></p-button>
+      <p-button icon="pi pi-database" class="p-button-rounded p-button-primary w-full md:w-auto mr-5"></p-button>
+      <p-button label="ACTION" icon="pi pi-sort-down-fill" iconPos="right"
+                [disabled]="selectedEncaissements.length ==0"/>
+    </div>
+  </div>
+
+
+  <!-- Tableau -->
+  <p-table [value]="encaissements" [paginator]="true" [rows]="25" [scrollable]="true" [responsiveLayout]="'scroll'"
+           [(selection)]="selectedEncaissements" [alwaysShowPaginator]="encaissements.length > 0"
+           [totalRecords]="encaissements.length" [rowsPerPageOptions]="[25, 50, 100, 500]">
+
+    <ng-template pTemplate="caption">
+      <div class="flex flex-col md:flex-row justify-between items-center mt-5">
+        <span class="text-xl font-semibold mb-2 md:mb-0"></span>
+        <div class="flex">
+          <p-iconfield iconPosition="left" class="ml-auto">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="searchTerm"
+              (input)="onSearchChange()"
+              placeholder="Search keyword"
+            />
+          </p-iconfield>
+        </div>
+      </div>
+    </ng-template>
+
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 4rem">
+          <p-tableHeaderCheckbox/>
+        </th>
+        <th>n°</th>
+        <th>Code</th>
+        <th>magasin</th>
+        <th>coursier</th>
+        <th>statut course</th>
+        <th>achat</th>
+        <th>livraison</th>
+        <th>expedition</th>
+        <th>recuperation</th>
+        <th>frais total</th>
+        <th>total</th>
+        <th>encaissé</th>
+        <th>reste a encaisser</th>
+        <th>statut paiement</th>
+        <th>mode paiement</th>
+        <th>caissier paiement</th>
+        <th>date_livraison</th>
+        <th>client</th>
+        <th>telephone</th>
+        <th>quartier</th>
+        <th>ville</th>
+
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-encaissement let-i="rowIndex">
+
+      <div class="card" *ngIf="isLoading">
+        <p-progress-bar mode="indeterminate" [style]="{'height': '6px'}"/>
+      </div>
+      <tr>
+        <td>
+          <p-tableCheckbox [value]="encaissement"/>
+        </td>
+        <td>{{ i + 1 }}</td>
+        <td>{{ encaissement.course_code }}</td>
+        <td>{{ encaissement.magasin }}</td>
+        <!-- <td>
+          <p-tag [value]="prep.statut_preparation_colis"
+                 [severity]="getColisSeverity(prep.statut_preparation_colis)"></p-tag>
+        </td> -->
+        <td>{{ encaissement.coursier }}</td>
+        <td>{{ encaissement.statut }}</td>
+        <!-- <td>
+          <p-tag [value]="prep.statut" [severity]="getColisSeverity(prep.statut)"></p-tag>
+        </td> -->
+        <td>{{ encaissement.achat }}</td>
+        <td>{{ encaissement.montant }}</td>
+        <td>{{ encaissement.expedition }}</td>
+        <td>{{ encaissement.recuperation }}</td>
+        <td>{{ encaissement.frais_total }}</td>
+        <td>{{ encaissement.total }}</td>
+        <td>{{ encaissement.montant_encaisse }}</td>
+        <td>{{ encaissement.reste_a_encaisse }}</td>
+        <td>{{ encaissement.statut_paiement_label }}</td>
+        <td>{{ encaissement.mode_paiement_label }}</td>
+        <td>
+          <p-tag [value]="encaissement.statut_paiement_label"
+                 [severity]="getEncaissementSeverity(encaissement.statut_paiement_label)"></p-tag>
+        </td>
+        <!-- <td>{{ encaissement.statut_paiement_label}}</td> -->
+        <td>{{ encaissement.mode_paiement_label }}</td>
+        <td>{{ encaissement.encaissement }}</td>
+        <td>{{ encaissement.date_livraison }}</td>
+        <td>{{ encaissement.client }}</td>
+        <td>{{ encaissement.telephone }}</td>
+        <td>{{ encaissement.quartier }}</td>
+        <td>{{ encaissement.ville }}</td>
+        <td>
+          <!-- <button pButton type="button" label="DÉTAIL" class="p-button-sm p-button-primary"></button>
+        </td> -->
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+

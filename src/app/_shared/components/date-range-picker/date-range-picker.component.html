@@ -1,0 +1,82 @@
+<!--<div class="date-range-picker">-->
+<!--  <div class="date-inputs">-->
+<!--    <div class="p-fluid">-->
+<!--      <label>Date Range</label>-->
+<!--      <p-calendar-->
+<!--        inputId="range"-->
+<!--        [selectionMode]="'range'"-->
+<!--        [readonlyInput]="true"-->
+<!--        [(ngModel)]="rangeDates"-->
+<!--        [dateFormat]="'yyyy-MM-dd HH:mm:ss'"-->
+<!--      ></p-calendar>-->
+<!--    </div>-->
+<!--  </div>-->
+
+<!--  <div class="preset-select">-->
+<!--    <label>Preset Range</label>-->
+<!--    <p-select-->
+<!--      [options]="datePresets"-->
+<!--      [(ngModel)]="selectedPreset"-->
+<!--      (onChange)="onPresetSelected()"-->
+<!--      placeholder="Select a Preset"-->
+<!--      optionLabel="label"-->
+<!--      optionValue="value"-->
+<!--    ></p-select>-->
+<!--  </div>-->
+
+<!--  <div class="actions">-->
+<!--    <button pButton (click)="onApply()">Apply</button>-->
+<!--    <button pButton (click)="onCancel()">Cancel</button>-->
+<!--  </div>-->
+<!--</div>-->
+
+<div>
+  <app-field-with-asterisk>Filtrer par plage de dates de livraison</app-field-with-asterisk>
+  <div class="custom-date-range-input p-inputtext p-component"
+       (click)="openDatePresetOverlay($event)"
+       tabindex="0" (keydown.enter)="openDatePresetOverlay($event)" (keydown.space)="openDatePresetOverlay($event)"
+       role="button">
+    {{ startDate }} - {{ endDate }}
+  </div>
+
+  <p-popover #datePresetOverlay [dismissable]="true"
+             styleClass="date-preset-overlay-panel">
+
+    <div class="flex min-h-96">
+      <div *ngIf="selectedPreset === 'custom'" class="flex-1 flex justify-center items-start p-4">
+        <p-datePicker
+          [(ngModel)]="tempCustomDateRangeFromCalendar"
+          selectionMode="range"
+          [inline]="true"
+          [numberOfMonths]="2"
+          [showButtonBar]="false">
+        </p-datePicker>
+      </div>
+
+      <div class="flex flex-col gap-4">
+        <div>
+          <ul class="list-none p-0 m-0 flex flex-col">
+            <li *ngFor="let preset of datePresets"
+                class="flex items-center gap-2 px-2 py-3 hover:bg-emphasis cursor-pointer rounded-border">
+              <p-button type="button"
+                        [label]="preset.label"
+                        class="p-button-text w-full text-left"
+                        [variant]="selectedPreset == preset.value ? 'outlined' : 'text'"
+                        (click)="onPresetSelected(preset.value)">
+              </p-button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-buttons-container">
+      <p-button type="button" label="VALIDER" class="p-button-sm"
+                (click)="onApply()"></p-button>
+      <p-button type="button" label="ANNULER" class="p-button-sm p-button-text"
+                (click)="onCancel()"></p-button>
+    </div>
+
+  </p-popover>
+
+</div>

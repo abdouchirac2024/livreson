@@ -1,0 +1,30 @@
+{
+  "logout": "logout",
+  "logout_message": "Are you sure you want to logout from the system?",
+  "cancel": "cancel",
+  "all_statuses": "All Statuses",
+  "all_delivery_men": "All delivery men",
+  "all_shops": "all shops",
+  "delivery_man_associated": "Associated with the delivery man",
+  "http-request-error": {
+    "304": "The password and/or email is/are incorrect",
+    "400": "Incorrect Data Please check that your data are correct. If the problem persists, please contact Technical Support Team.",
+    "401": "You have an authorization problem. If the problem persists, please contact the Technical Support Team or the administration.",
+    "403": "You do not have sufficient right of access to these data",
+    "404": "Address not found. please retry",
+    "422": "The provided data can not be process because you have some duplicate entries",
+    "500": "An unknown error occurred. If the problem persists, please contact the Technical Support Team or the administration."
+  },
+  "http-error": {
+  },
+  "preparation": {
+    "change_status": "Change status",
+    "change_status_message": "Change the preparation status of {{number}} lines",
+    "select_status": "Select the status",
+    "change_status_success": "Status change successfully"
+  },
+  "delivery_man": "Delivery Man",
+  "assign_delivery_man": "Assign to a delivery man",
+  "unassign_delivery_man": "Unassign from a delivery man",
+  "select_delivery_man": "Select delivery man"
+}

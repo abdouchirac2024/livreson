@@ -1,0 +1,165 @@
+<p-card>
+  <!-- preparation.component.html -->
+  <div class="flex align-items-center justify-content-between mb-3 flex-wrap gap-3">
+    <h2 class="w-full">Reporting courses</h2>
+
+    <!-- Filtres dynamiques -->
+    <div class="mb-6 p-fluid grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+
+      <!-- date picker -->
+      <app-date-range-picker [startDate]="startDate" [endDate]="endDate"
+                             (dateRangeSelected)="handleDateRangeSelected($event)">
+      </app-date-range-picker>
+
+      <!--    city drop down-->
+      <div>
+        <app-field-with-asterisk>Ville</app-field-with-asterisk>
+        <p-select [options]="villes" [(ngModel)]="selectedCity" placeholder="Tout"
+                  optionLabel="libelle" dataKey="id" [disabled]="isVilleDropdownDisabled" styleClass="w-full">
+        </p-select>
+      </div>
+
+      <!--    zones drop down-->
+      <div>
+        <app-field-with-asterisk>Zones</app-field-with-asterisk>
+        <p-select [options]="allZones" [(ngModel)]="selectedZone" placeholder="Tout"
+                  optionLabel="libelle" dataKey="id" [filter]="allZones.length > 5"
+                  filterBy="libelle" emptyFilterMessage="Aucun magasin trouvé" [disabled]="allZones.length <=1"
+                  styleClass="w-full">
+        </p-select>
+      </div>
+
+      <!--    magasin drop down-->
+      <div>
+        <app-field-with-asterisk>Magasins</app-field-with-asterisk>
+        <p-select [options]="magasins" [(ngModel)]="selectedShop" placeholder="Tous les magasins"
+                  optionLabel="nom" dataKey="id" [filter]="magasins.length > 5"
+                  filterBy="nom" emptyFilterMessage="Aucun magasin trouvé" [disabled]="magasins.length <=1"
+                  styleClass="w-full" [virtualScroll]="true" [virtualScrollItemSize]="38">
+        </p-select>
+      </div>
+
+      <!--    coursier drop down-->
+      <div>
+        <app-field-with-asterisk>Coursiers</app-field-with-asterisk>
+        <p-select [options]="coursiers" [(ngModel)]="selectedCoursier" placeholder="Tous les coursiers"
+                  optionLabel="fullname" dataKey="id" [filter]="coursiers.length > 5"
+                  filterBy="fullname" emptyFilterMessage="Aucun coursier trouvé" [virtualScroll]="true"
+                  [virtualScrollItemSize]="38" [disabled]="coursiers.length == 0" styleClass="w-full">
+        </p-select>
+      </div>
+
+
+      <!--    statut course-->
+      <div>
+        <app-field-with-asterisk>Statut Course</app-field-with-asterisk>
+        <p-select [options]="orderStatuses" [(ngModel)]="selectedOrderStatus" placeholder="A traiter"
+                  optionLabel="name" dataKey="id" styleClass="w-full">
+        </p-select>
+      </div>
+
+      <!--    reporting status drop down-->
+      <div>
+        <app-field-with-asterisk>Coursier Avec Stock</app-field-with-asterisk>
+        <p-select
+          [options]="coursiers" [(ngModel)]="selectedCoursier"
+          placeholder="assigne a un gestionnaire" optionLabel="fullname"
+          dataKey="id" [filter]="coursiers.length > 5" filterBy="fullname"
+          emptyFilterMessage="Aucun gestionnaire trouvé" [virtualScroll]="true"
+          [virtualScrollItemSize]="38" [disabled]="coursiers.length == 0">
+        </p-select>
+      </div>
+
+      <div class="flex items-end">
+        <p-button type="button" icon="pi pi-refresh" [rounded]="true" label="{{'search' | translate}}"
+                  (click)="onFilterChange()" class="w-full md:w-auto mr-4"></p-button>
+        <p-button icon="pi pi-database"
+                  class="p-button-rounded p-button-primary w-full md:w-auto mr-5"></p-button>
+      </div>
+    </div>
+    <p-button label="ACTION" icon="pi pi-sort-down-fill" iconPos="right"/>
+  </div>
+
+
+  <!-- Tableau -->
+  <p-table [value]="reporting" [paginator]="true" [rows]="10" [scrollable]="true" [responsiveLayout]="'scroll'">
+
+    <!-- <ng-template pTemplate="caption"> -->
+    <!-- <div class="flex flex-col md:flex-row justify-between items-center mt-5">
+      <span class="text-xl font-semibold mb-2 md:mb-0"></span> -->
+    <!-- <div class="flex">
+      <p-iconfield iconPosition="left" class="ml-auto">
+        <p-inputicon>
+          <i class="pi pi-search"></i>
+        </p-inputicon>
+        <input
+          pInputText
+          type="text"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          placeholder="Search keyword"
+        />
+      </p-iconfield>
+    </div> -->
+    <!-- </div>
+  </ng-template> -->
+
+    <ng-template pTemplate="header">
+      <tr>
+        <!-- <th style="width: 4rem">
+          <p-tableHeaderCheckbox/>
+        </th> -->
+        <th>n°</th>
+        <th>magasin</th>
+        <th>Livrée(s)</th>
+        <th>A livrer</th>
+        <th>Reportée(s)</th>
+        <th>Annulée(s)</th>
+        <th>Total</th>
+        <th>Assigné A</th>
+        <th>Total achats</th>
+        <th>Total expéditions</th>
+        <th>Total récupérations</th>
+        <th>Statut reporting</th>
+        <th>Statut Dépôt</th>
+
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-report let-i="rowIndex">
+
+      <div class="card" *ngIf="isLoading">
+        <p-progress-bar mode="indeterminate" [style]="{'height': '6px'}"/>
+      </div>
+      <tr>
+        <!-- <td>
+          <p-tableCheckbox [value]="report"/>
+        </td> -->
+        <td>{{ i + 1 }}</td>
+        <td>{{ report.magasin }}</td>
+        <td>{{ report.courses.livre }}</td>
+        <!-- <td>
+          <p-tag [value]="prep.statut_preparation_colis"
+                 [severity]="getColisSeverity(prep.statut_preparation_colis)"></p-tag>
+        </td> -->
+        <td>{{ report.courses.a_livrer }}</td>
+        <td>{{ report.courses.reporte }}</td>
+        <!-- <td>
+          <p-tag [value]="prep.statut" [severity]="getColisSeverity(prep.statut)"></p-tag>
+        </td> -->
+        <td>{{ report.courses.annule }}</td>
+        <td>{{ report.total }}</td>
+        <!--  <td>{{ report.quartier }}</td> -->
+        <td>{{ report.assigne_a }}</td>
+        <td>{{ report.montant_total_termine }} FCFA</td>
+        <td>{{ report.montant_total_expedition }} FCFA</td>
+        <td>{{ report.montant_total_recuperation }} FCFA</td>
+        <td>{{ report.statut_reporting }}</td>
+        <td>{{ report.statut_depot }}</td>
+        <td>
+          <button pButton type="button" label="DÉTAIL" class="p-button-sm p-button-primary"></button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+

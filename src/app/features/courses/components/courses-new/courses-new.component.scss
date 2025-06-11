@@ -1,0 +1,138 @@
+// Styles spécifiques pour le composant CoursesNewComponent
+.courses-new-container {
+  position: relative;
+  padding-bottom: 70px; // Espace pour les boutons récapitulatifs fixes en bas
+}
+
+.courses-table {
+  th, td {
+    font-size: 0.875rem;
+  }
+}
+
+.summary-buttons-fixed {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--surface-card, white);
+  padding: 0.75rem 1rem;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  border-top: 1px solid var(--surface-border, #dee2e6);
+  z-index: 100;
+
+  .p-button.p-button-sm {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+:host ::ng-deep .p-dropdown {
+  width: 100%;
+}
+
+.custom-date-range-input {
+  width: 100%;
+  cursor: pointer;
+  padding: var(--p-inputtext-padding, 0.75rem 0.75rem);
+  border: 1px solid var(--p-inputtext-border-color, #ced4da);
+  border-radius: var(--p-inputtext-border-radius, 6px);
+  background-color: var(--p-inputtext-background, #ffffff);
+  color: var(--p-inputtext-color, #495057);
+  font-family: var(--p-font-family);
+  font-size: var(--p-inputtext-font-size, 1rem);
+  line-height: var(--p-inputtext-line-height, 1.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: calc(var(--p-inputtext-padding-y, 0.75rem) * 2 + var(--p-inputtext-line-height, 1.5) * var(--p-inputtext-font-size, 1rem) + 2px);
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    border-color: var(--p-inputtext-hover-border-color, #3B82F6);
+  }
+
+  &:focus, &:focus-visible {
+    outline: 0 none;
+    outline-offset: 0;
+    border-color: var(--p-inputtext-focus-border-color, #3B82F6);
+    box-shadow: 0 0 0 0.2rem var(--p-inputtext-focus-shadow-color, #BFDBFE);
+  }
+}
+
+// Styles for the date preset overlay panel
+:host ::ng-deep .date-preset-overlay-panel {
+  .p-overlaypanel-content {
+    padding: 0 !important;
+  }
+
+  .date-preset-popup-content {
+    padding: 0.5rem; // Reduced padding
+    min-width: 200px; // Adjust as needed
+    max-width: 250px;
+
+    .preset-buttons-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem; // Very small gap
+      margin-bottom: 0.5rem;
+
+      .p-button-text {
+        justify-content: flex-start !important;
+        width: 100%;
+        padding: 0.5rem 0.75rem; // Adjust padding
+        text-align: left;
+        font-size: 0.875rem;
+        &.p-button-info { // Style for active preset
+           background-color: var(--primary-100) !important;
+           color: var(--primary-700) !important;
+           font-weight: 600;
+        }
+        &:hover:not(.p-button-info) {
+            background-color: var(--surface-hover) !important;
+        }
+      }
+    }
+
+    .action-buttons-container {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      border-top: 1px solid var(--surface-d, #e9ecef);
+      padding-top: 0.5rem;
+      margin-top: 0.25rem;
+    }
+  }
+}
+
+// Visually hide the input that p-calendar uses if it's not inline
+:host ::ng-deep .visually-hidden-calendar-input-trigger {
+  // This class is applied to p-calendar's inputStyleClass
+  border: 0 !important;
+  clip: rect(0 0 0 0) !important;
+  height: 1px !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  position: absolute !important;
+  width: 1px !important;
+  white-space: nowrap !important; // Important to prevent breaking layout
+  opacity: 0 !important;
+}
+
+
+@media (min-width: 768px) {
+  .md\:w-auto {
+    width: auto !important;
+  }
+}
+
+.course-id-link {
+  color: var(--primary-color, #007bff);
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}

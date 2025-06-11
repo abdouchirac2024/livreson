@@ -1,0 +1,24 @@
+// src/assets/layout/_main.scss
+
+.layout-main-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: space-between;
+    // Le padding-top est pour le topbar
+    padding: 6rem 2rem 0 2rem; // Garder le padding horizontal
+    transition: margin-left var(--layout-section-transition-duration);
+
+    // La marge à gauche sera gérée par les classes du layout-wrapper
+    // dans _responsive.scss en fonction de l'état du menu.
+
+    // Padding en bas pour la barre de boutons fixe
+    padding-bottom: 80px; // Ajustez cette valeur précisément
+}
+
+.layout-main {
+    flex: 1 1 auto;
+    // Le padding-bottom ici peut être réduit ou supprimé si le padding-bottom
+    // du .layout-main-container est suffisant
+    // padding-bottom: 2rem;
+}

@@ -1,0 +1,12 @@
+<div class="grid grid-rows-2 ml-2">
+  <label> {{ libelle }}</label>
+  <p-select
+    [options]="dropdownItems"
+    [(ngModel)]="internalSelectedItem"
+    placeholder="{{placeholder}}"
+    optionLabel="name"
+    [showClear]="true"
+    (onChange)="onDropdownChange($event)"
+  >
+  </p-select>
+</div>

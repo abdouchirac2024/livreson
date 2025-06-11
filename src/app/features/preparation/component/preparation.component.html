@@ -1,0 +1,211 @@
+<p-toast/>
+
+<p-card>
+  <!-- preparation.component.html -->
+  <div class="flex align-items-center justify-content-between mb-3 flex-wrap gap-3">
+    <h2 class="w-full">Préparation du colis</h2>
+
+    <!-- Filtres dynamiques -->
+    <div class="mb-6 p-fluid grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+
+      <!--    date picker-->
+      <app-date-range-picker [startDate]="startDate" [endDate]="endDate"
+                             (dateRangeSelected)="handleDateRangeSelected($event)">
+      </app-date-range-picker>
+
+      <!--    city drop down-->
+      <div>
+        <app-field-with-asterisk>Ville</app-field-with-asterisk>
+        <p-select [options]="villes" [(ngModel)]="selectedCity" placeholder="Tout"
+                  optionLabel="libelle" dataKey="id"
+                  [disabled]="isVilleDropdownDisabled" styleClass="w-full">
+        </p-select>
+      </div>
+
+      <!--    zones drop down-->
+      <div>
+        <app-field-with-asterisk>Zones</app-field-with-asterisk>
+        <p-select [options]="allZones" [(ngModel)]="selectedZone" placeholder="Tout"
+                  optionLabel="libelle" dataKey="id" [filter]="allZones.length > 5"
+                  filterBy="libelle" emptyFilterMessage="Aucun magasin trouvé" [disabled]="allZones.length <=1"
+                  styleClass="w-full">
+        </p-select>
+      </div>
+
+      <!--    magasin drop down-->
+      <div>
+        <app-field-with-asterisk>Magasins</app-field-with-asterisk>
+        <p-select [options]="magasins" [(ngModel)]="selectedShop" placeholder="Tous les magasins"
+                  optionLabel="nom" dataKey="id" [filter]="magasins.length > 5"
+                  filterBy="nom" emptyFilterMessage="Aucun magasin trouvé" [disabled]="magasins.length <=1"
+                  styleClass="w-full" [virtualScroll]="true" [virtualScrollItemSize]="38">
+        </p-select>
+      </div>
+
+      <!--    coursier drop down-->
+      <div>
+        <app-field-with-asterisk>Coursiers</app-field-with-asterisk>
+        <p-select [options]="coursiers" [(ngModel)]="selectedCoursier" placeholder="Tous les coursiers"
+                  optionLabel="fullname" dataKey="id" [filter]="coursiers.length > 5"
+                  filterBy="fullname" emptyFilterMessage="Aucun coursier trouvé" [virtualScroll]="true"
+                  [virtualScrollItemSize]="38" [disabled]="coursiers.length == 0" styleClass="w-full">
+        </p-select>
+      </div>
+
+      <!--    statut course-->
+      <div>
+        <app-field-with-asterisk>Status</app-field-with-asterisk>
+        <p-select [options]="orderStatuses" [(ngModel)]="selectedOrderStatus" placeholder="A traiter"
+                  optionLabel="name" dataKey="id" styleClass="w-full">
+        </p-select>
+      </div>
+
+      <!--    preparation status drop down-->
+      <div>
+        <app-field-with-asterisk>Statut Colis</app-field-with-asterisk>
+        <p-select
+          [options]="statuts"
+          [(ngModel)]="selectedStatus"
+          placeholder="Tous les statuts Colis"
+          optionLabel="name">
+        </p-select>
+      </div>
+
+      <div class="flex items-end">
+        <p-button type="button" icon="pi pi-refresh" [rounded]="true" label="{{'search' | translate}}"
+                  (click)="onFilterChange()" class="w-full md:w-auto mr-4"></p-button>
+        <p-button icon="pi pi-database" class="p-button-rounded p-button-primary w-full md:w-auto mr-5"></p-button>
+        <p-splitbutton [model]="exportItems" icon="pi pi-upload" label="Export" class="mr-4"></p-splitbutton>
+      </div>
+    </div>
+    <p-button label="ACTION" icon="pi pi-sort-down-fill" iconPos="right" (click)="op.toggle($event)"
+              [disabled]="selectedPreparations.length ==0"/>
+
+    <div class="mb-4">
+      <p-popover #op>
+        <div class="flex flex-col gap-4 w-[25rem]">
+          <label (click)="setColisAction('change_status')">{{ 'preparation.change_status' | translate }}</label>
+          <label (click)="setColisAction('assign_delivery_man')">{{ 'assign_delivery_man' | translate }}</label>
+          <label (click)="visible = true">{{ 'unassign_delivery_man' | translate }}</label>
+        </div>
+      </p-popover>
+      <p-dialog
+        header="Changer le statut de préparation colis de 1 lignes"
+        [(visible)]="visible"
+        [modal]="true"
+        [draggable]="false"
+        [resizable]="false"
+      >
+        <div class="p-fluid">
+          @if (colisAction === "change_status") {
+            <div class="p-field">
+              <label>Statut</label>
+              <p-select [options]="statuts" optionLabel="name" dataKey="code" class="w-full"
+                        [(ngModel)]="selectedDialogStatus" appendTo="body"
+                        placeholder="{{'preparation.select_status' | translate}}">
+              </p-select>
+            </div>
+          }
+          @if (colisAction === "assign_delivery_man") {
+            <div class="p-field">
+              <label>{{ 'delivery_man' | translate }}</label>
+              <p-select [options]="coursiers" optionLabel="fullname" dataKey="id" class="w-full"
+                        [(ngModel)]="selectedAssignCoursier" appendTo="body"
+                        placeholder="{{'select_delivery_man' | translate}}">
+              </p-select>
+            </div>
+          }
+        </div>
+
+        <ng-template pTemplate="footer">
+          <p-button label="Annuler" icon="pi pi-times" (onClick)="visible = false"
+                    styleClass="p-button-text"></p-button>
+          <p-button label="Confirmer" icon="pi pi-check" (click)="selectAction()"
+                    [disabled]="toggleActionButton()"></p-button>
+        </ng-template>
+      </p-dialog>
+    </div>
+  </div>
+
+
+  <!-- Tableau -->
+  <p-table #dt [value]="preparations" [paginator]="true" [rows]="25" [responsiveLayout]="'scroll'" dataKey="course_id"
+           [loading]="isLoading" [alwaysShowPaginator]="preparations.length > 0"
+           [totalRecords]="preparations.length" [(selection)]="selectedPreparations" [filterDelay]="0"
+           [rowsPerPageOptions]="[25, 50, 100, 500]" stripedRows [lazy]="true" [showCurrentPageReport]="true"
+           [globalFilterFields]="['prep.course_code', 'prep.magasin', 'pre.telephone', 'prep.quartier', 'prep.ville', 'prep.coursier']"
+           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+
+    <ng-template pTemplate="caption">
+      <div class="flex flex-col md:flex-row justify-between items-center mt-5">
+        <span class="text-xl font-semibold mb-2 md:mb-0"></span>
+        <div class="flex">
+          <p-iconfield iconPosition="left" class="ml-auto">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="searchTerm"
+              (input)="onSearchChange()"
+              placeholder="Search keyword"
+            />
+          </p-iconfield>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 4rem">
+          <p-tableHeaderCheckbox/>
+        </th>
+        <th>n°</th>
+        <th>Code</th>
+        <th>magasin</th>
+        <th>Préparation Colis</th>
+        <th>coursier</th>
+        <th>contenu</th>
+        <th>statut course</th>
+        <th>client</th>
+        <th>téléphone</th>
+        <th>quartier</th>
+        <th>ville</th>
+        <th>date de livraison</th>
+
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-prep let-i="rowIndex">
+
+      <div class="card" *ngIf="isLoading">
+        <p-progress-bar mode="indeterminate" [style]="{'height': '6px'}"/>
+      </div>
+      <tr>
+        <td>
+          <p-tableCheckbox [value]="prep"/>
+        </td>
+        <td>{{ i + 1 }}</td>
+        <td>{{ prep.course_code }}</td>
+        <td>{{ prep.magasin }}</td>
+        <td>
+          <p-tag [value]="prep.statut_preparation_colis"
+                 [severity]="getColisSeverity(prep.statut_preparation_colis)"></p-tag>
+        </td>
+        <td>{{ prep.coursier }}</td>
+        <td>{{ prep.contenu }}</td>
+        <td>
+          <p-tag [value]="prep.statut" [severity]="getColisSeverity(prep.statut)"></p-tag>
+        </td>
+        <td>{{ prep.client }}</td>
+        <td>{{ prep.telephone }}</td>
+        <td>{{ prep.quartier }}</td>
+        <td>{{ prep.ville }}</td>
+        <td>{{ prep.date_livraison }}</td>
+        <td>
+          <p-button type="button" label="DÉTAIL" class="p-button-sm p-button-primary" (click)="showDetail(prep)"/>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>

@@ -1,0 +1,29 @@
+{
+  "logout": "déconnexion",
+  "logout_message": "Êtes-vous sûr de vouloir vous déconnecter du système ?",
+  "cancel": "annuler",
+  "search": "recherche",
+  "all_statuses": "Tous les statuts",
+  "all_delivery_men": "Tous les coursiers",
+  "all_shops": "Tous les magasins",
+  "delivery_man_associated": "Associé au coursier",
+  "http-request-error": {
+    "304": "Le mot de passe et/ou l'adresse électronique est/sont incorrect(s)",
+    "400": "Données incorrectes Veuillez vérifier que vos données sont correctes. Si le problème persiste, veuillez contacter l'équipe d'assistance technique.",
+    "401": "Vous avez un problème d'autorisation. Si le problème persiste, veuillez contacter l'équipe de support technique ou l'administration.",
+    "403": "Vous ne disposez pas d'un droit d'accès suffisant à ces données",
+    "404": "Adresse non trouvée. Veuillez réessayer",
+    "422": "Les données fournies ne peuvent pas être traitées car vous avez des entrées en double.",
+    "500": "Une erreur inconnue s'est produite. Si le problème persiste, veuillez contacter l'équipe d'assistance technique ou l'administration."
+  },
+  "preparation": {
+    "change_status": "Modifier le statut de preparation colis",
+    "change_status_message": "Changer le statut de preparation de {{number}} lignes",
+    "select_status": "sélectionner le statut",
+    "change_status_success": "changement de statut effectué avec succès"
+  },
+  "delivery_man": "Livreur",
+  "assign_delivery_man": "Assigner à un coursier",
+  "unassign_delivery_man": "Désassigner un coursier",
+  "select_delivery_man": "Sélectionner le livreur"
+}

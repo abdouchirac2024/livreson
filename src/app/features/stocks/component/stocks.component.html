@@ -1,0 +1,215 @@
+<!-- src/app/features/stocks/component/stocks.component.html -->
+<p-toast></p-toast>
+
+<p-card>
+  <div class="flex align-items-center justify-content-between mb-3 flex-wrap gap-3">
+    <h2 class="w-full">Transfert de stock</h2>
+    <!-- Filtres dynamiques -->
+    <div class="mb-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+
+      <!-- Date picker -->
+      <app-date-range-picker [startDate]="startDate" [endDate]="endDate"
+                             (dateRangeSelected)="handleDateRangeSelected($event)">
+      </app-date-range-picker>
+
+      <!-- City drop down -->
+      <div>
+        <app-field-with-asterisk>Ville</app-field-with-asterisk>
+        <p-select [options]="villes" [(ngModel)]="selectedCity" placeholder="Tout"
+                  optionLabel="libelle" dataKey="id" [disabled]="isVilleDropdownDisabled" styleClass="w-full">
+        </p-select>
+      </div>
+
+      <!-- Magasin drop down -->
+      <div>
+        <app-field-with-asterisk>Magasins</app-field-with-asterisk>
+        <p-select [options]="magasins" [(ngModel)]="selectedShop" placeholder="{{'all_shops'| translate}}"
+                  optionLabel="nom" dataKey="id" [filter]="magasins.length > 5"
+                  filterBy="nom" emptyFilterMessage="Aucun magasin trouvé" [disabled]="magasins.length <=1"
+                  styleClass="w-full" [virtualScroll]="true" [virtualScrollItemSize]="38">
+        </p-select>
+      </div>
+
+      <!-- Coursier drop down (filtre principal) -->
+      <div>
+        <app-field-with-asterisk>Coursiers</app-field-with-asterisk>
+        <p-select [options]="coursiers" [(ngModel)]="selectedCoursier"
+                  placeholder="{{'all_delivery_men' | translate}}"
+                  optionLabel="fullname" dataKey="id" [filter]="coursiers.length > 5"
+                  filterBy="fullname" emptyFilterMessage="Aucun coursier trouvé" [virtualScroll]="true"
+                  [virtualScrollItemSize]="38" [disabled]="coursiers.length == 0" styleClass="w-full">
+        </p-select>
+      </div>
+
+      <!-- Statut course -->
+      <div>
+        <app-field-with-asterisk>Status</app-field-with-asterisk>
+        <p-select [options]="orderStatuses" [(ngModel)]="selectedOrderStatus"
+                  placeholder="{{ 'all_statuses' | translate}}"
+                  optionLabel="name" dataKey="id" styleClass="w-full"
+                  (onClear)="onClearOrderStatus()">
+        </p-select>
+      </div>
+
+      <!-- Stock transfer status drop down -->
+      <div>
+        <app-field-with-asterisk>Statut Transfert</app-field-with-asterisk>
+        <p-select
+          [options]="statuts"
+          [(ngModel)]="selectedStatusTransfert"
+          placeholder="{{ 'all_statuses' | translate}}"
+          optionLabel="name"
+          dataKey="code"
+          (onClear)="onTransferStatusClear()"
+          styleClass="w-full"
+        >
+        </p-select>
+      </div>
+
+      <!-- Coursier avec stock drop down (filtre) -->
+      <div>
+        <app-field-with-asterisk>Coursier avec Stock</app-field-with-asterisk>
+        <p-select [options]="coursiers" [(ngModel)]="selectedCoursierStock"
+                  placeholder="{{'delivery_man_associated' | translate}}"
+                  optionLabel="fullname" dataKey="id" [filter]="coursiers.length > 5"
+                  filterBy="fullname" emptyFilterMessage="Aucun coursier trouvé" [virtualScroll]="true"
+                  [virtualScrollItemSize]="38" [disabled]="coursiers.length == 0" styleClass="w-full">
+        </p-select>
+      </div>
+
+      <!-- Boutons de filtre : Recherche et Export/Autre Action -->
+      <!-- Ce div aligne les boutons à la fin de la grille des filtres s'il y a de la place, ou sur une nouvelle ligne -->
+      <div class="col-span-full md:col-span-1 lg:col-span-1 xl:col-span-1 flex items-end gap-2">
+        <p-button type="button" icon="pi pi-refresh" [rounded]="true" label="{{'search' | translate}}"
+                  (click)="onFilterChange()" styleClass="w-full md:w-auto"></p-button>
+        <p-button icon="pi pi-database" [rounded]="true"
+                  styleClass="p-button-primary w-full md:w-auto" pTooltip="Exporter les données (non implémenté)" tooltipPosition="top"></p-button>
+      </div>
+    </div> <!-- Fin du div principal des filtres -->
+
+    <!-- Bouton ACTION avec menu déroulant, placé après la grille des filtres -->
+    <div class="w-full md:w-auto mt-3 md:mt-0 flex gap-2"> <!-- Ajout d'un flex pour aligner les deux boutons -->
+      <p-button type="button" label="ACTION" icon="pi pi-cog" (click)="transferMenu.toggle($event)" [disabled]="!selectedStocks || selectedStocks.length === 0"></p-button>
+      <p-menu #transferMenu [model]="transferMenuItems" [popup]="true"></p-menu>
+      <!-- Nouveau bouton pour les actions de stock -->
+      <p-button type="button" label="Actions Stock" icon="pi pi-sliders-h" (click)="stockActionsMenu.toggle($event)" [disabled]="!selectedStocks || selectedStocks.length === 0"></p-button>
+      <p-menu #stockActionsMenu [model]="stockActionsMenuItems" [popup]="true"></p-menu>
+    </div>
+
+  </div> <!-- Fin du flex align-items-center justify-content-between -->
+
+  <!-- Tableau -->
+  <p-table [value]="stocks" [(selection)]="selectedStocks" dataKey="stock_course_id"
+           [paginator]="true" [rows]="10" [scrollable]="true" [responsiveLayout]="'scroll'"
+           [loading]="isLoading" [tableStyle]="{'min-width': '70rem'}"> <!-- Augmenté min-width pour éviter le serrement -->
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3rem">
+          <p-tableHeaderCheckbox />
+        </th>
+        <th class="text-xs">N°</th>
+        <th class="text-xs">Magasin</th>
+        <th class="text-xs">Course</th>
+        <th class="text-xs">Statut course</th>
+        <th class="text-xs">Assignée à</th>
+        <th class="text-xs">Panier</th>
+        <th class="text-xs">A le stock</th>
+        <th class="text-xs">Statut stock</th>
+        <th class="text-xs">Gestionnaire</th>
+        <th class="text-xs">Date de livraison</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-stock let-i="rowIndex">
+      <tr>
+        <td>
+          <p-tableCheckbox [value]="stock" />
+        </td>
+        <td>{{ i + 1 }}</td>
+        <td>{{ stock.magasin }}</td>
+        <td>{{ stock.code_course }}</td>
+        <td>{{ stock.statut_course }}</td>
+        <td>{{ stock.coursier?.fullname || stock.coursier_stock }}</td>
+        <td>
+          <ul *ngIf="stock.panier && stock.panier.length > 0" class="list-none p-0 m-0">
+            <li *ngFor="let item of stock.panier">
+              {{ item.description || item.nom_produit || 'Item' }}
+            </li>
+          </ul>
+          <span *ngIf="!stock.panier || stock.panier.length === 0">-</span>
+        </td>
+        <td>{{ stock.aLeStock ? '✔' : '✘' }}</td>
+        <td>{{ stock.stock_course?.statut_transfert || stock.statut_transfert }}</td>
+        <td>{{ stock.gestionnaire }}</td>
+        <td>{{ stock.date_livraison | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="11" class="text-center p-4">Aucun stock trouvé pour les filtres actuels.</td>
+        </tr>
+    </ng-template>
+     <ng-template pTemplate="loadingbody" let-columns>
+        <!-- Exemple simple de skeleton, vous pouvez le personnaliser davantage -->
+        <tr *ngFor="let num of [1,2,3,4,5]"> <!-- 5 lignes de skeleton -->
+            <td><p-skeleton shape="circle" size="2rem" styleClass="mr-2"></p-skeleton></td>
+            <td><p-skeleton width="50px"></p-skeleton></td>
+            <td><p-skeleton width="120px"></p-skeleton></td>
+            <td><p-skeleton width="150px"></p-skeleton></td>
+            <td><p-skeleton width="100px"></p-skeleton></td>
+            <td><p-skeleton width="120px"></p-skeleton></td>
+            <td><p-skeleton width="100px"></p-skeleton></td>
+            <td><p-skeleton width="80px"></p-skeleton></td>
+            <td><p-skeleton width="100px"></p-skeleton></td>
+            <td><p-skeleton width="120px"></p-skeleton></td>
+            <td><p-skeleton width="150px"></p-skeleton></td>
+        </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<!-- Boîte de dialogue pour le transfert de stock -->
+<p-dialog header="Confirmation de transfert de stock" [(visible)]="displayTransferDialog" [modal]="true" [draggable]="false" [resizable]="false" (onHide)="cancelStockTransfer()">
+  <div class="p-fluid grid pt-3">
+    <div class="field col-12">
+      <p>Le stock sera transféré au coursier : <strong>{{selectedStocks[0].coursier?.fullname || selectedStocks[0].coursier_stock || 'Non assigné'}}</strong></p>
+      <p *ngIf="selectedStocks.length > 1">Nombre de stocks sélectionnés : {{selectedStocks.length}}</p>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button icon="pi pi-times" (click)="cancelStockTransfer()" label="Annuler" styleClass="p-button-text"></p-button>
+    <p-button icon="pi pi-check" (click)="confirmStockTransfer()" label="Confirmer le transfert"></p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Boîte de dialogue de succès pour le retour de stock -->
+<p-dialog header="Succès" [(visible)]="displayReturnSuccessDialog" [modal]="true" [draggable]="false" [resizable]="false" (onHide)="cancelReturnSuccess()">
+  <div class="p-fluid pt-3">
+    <p>{{ returnSuccessMessage }}</p>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button icon="pi pi-times" (click)="cancelReturnSuccess()" label="Annuler" styleClass="p-button-text"></p-button>
+    <p-button icon="pi pi-check" (click)="confirmReturnSuccess()" label="OK"></p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Boîte de dialogue de confirmation pour le retour de stock -->
+<p-dialog header="Confirmation" [(visible)]="displayReturnConfirmationDialog" [modal]="true" [draggable]="false" [resizable]="false" (onHide)="cancelReturnAction()">
+  <div class="p-fluid pt-3">
+    <p>{{ returnSuccessMessage }}</p>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button icon="pi pi-times" (click)="cancelReturnAction()" label="Annuler" styleClass="p-button-text"></p-button>
+    <p-button icon="pi pi-check" (click)="confirmReturnAction()" label="Oui"></p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Boîte de dialogue de confirmation pour Confirmer Retour Stock -->
+<p-dialog header="Confirmation" [(visible)]="displayConfirmReturnConfirmationDialog" [modal]="true" [draggable]="false" [resizable]="false" (onHide)="cancelConfirmReturnStock()">
+  <div class="p-fluid pt-3">
+    <p>{{ returnSuccessMessage }}</p>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button icon="pi pi-times" (click)="cancelConfirmReturnStock()" label="Annuler" styleClass="p-button-text"></p-button>
+    <p-button icon="pi pi-check" (click)="executeConfirmReturnStock()" label="Oui"></p-button>
+  </ng-template>
+</p-dialog>

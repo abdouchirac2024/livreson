@@ -1,0 +1,160 @@
+@use 'mixins' as *;
+
+.layout-sidebar {
+    position: fixed;
+    width: 20rem;
+    height: calc(100vh - 8rem); // Hauteur moins le topbar et le padding du bas
+    z-index: 999;
+    overflow-y: auto;
+    user-select: none;
+    top: 6rem; // Sous le topbar
+    left: 2rem; // Espacement à gauche
+    transition:
+        transform var(--layout-section-transition-duration),
+        left var(--layout-section-transition-duration);
+    background-color: var(--surface-overlay); // Fond du menu
+    border-radius: var(--content-border-radius);
+    padding: 0.5rem 1.5rem; // Padding interne du sidebar
+}
+
+.layout-menu {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+
+    .layout-root-menuitem {
+        > .layout-menuitem-root-text {
+            font-size: 0.857rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--text-color-secondary); // Couleur secondaire pour les titres
+            margin: 0.75rem 0 0.5rem 0;
+            padding: 0.5rem 1rem;
+            display: block;
+        }
+
+        > a {
+            display: none; // Masquer les liens principaux si non nécessaires
+        }
+    }
+
+    a {
+        user-select: none;
+        display: flex;
+        align-items: center;
+        position: relative;
+        outline: 0 none;
+        color: var(--text-color);
+        cursor: pointer;
+        padding: 0.75rem 1rem;
+        border-radius: var(--content-border-radius);
+        transition:
+            background-color var(--element-transition-duration),
+            box-shadow var(--element-transition-duration);
+        margin-bottom: 0.25rem; // Petit espace entre les liens
+
+        .layout-menuitem-icon {
+            margin-right: 0.75rem; // Espace entre icône et texte
+        }
+
+        .layout-menuitem-text {
+            flex-grow: 1; // Le texte prend l'espace disponible
+        }
+
+        .layout-submenu-toggler {
+            font-size: 0.75rem;
+            margin-left: auto; // Pousse la flèche à droite
+            transition: transform var(--element-transition-duration);
+        }
+
+        &.active-route {
+            font-weight: 700;
+            color: var(--primary-color);
+            background-color: color-mix(in srgb, var(--primary-color) 15%, transparent); // Fond léger pour l'élément actif
+        }
+
+        &:hover {
+            background-color: var(--surface-hover); // Fond au survol
+        }
+
+        &:focus {
+            @include focused-inset();
+        }
+    }
+
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+        overflow: hidden;
+        border-radius: var(--content-border-radius);
+
+        a {
+            padding-left: 2rem; // Indentation pour le premier niveau
+        }
+
+        li {
+            a {
+                margin-left: 1rem; // Indentation de base
+            }
+
+            li {
+                a {
+                    margin-left: 2rem; // Deuxième niveau
+                }
+
+                li {
+                    a {
+                        margin-left: 2.5rem; // Troisième niveau
+                    }
+
+                    li {
+                        a {
+                            margin-left: 3rem; // Quatrième niveau
+                        }
+
+                        li {
+                            a {
+                                margin-left: 3.5rem; // Cinquième niveau
+                            }
+
+                            li {
+                                a {
+                                    margin-left: 4rem; // Sixième niveau
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    li.active-menuitem {
+        > a {
+            .layout-submenu-toggler {
+                transform: rotate(-180deg); // Rotation de la flèche pour un menu ouvert
+            }
+        }
+    }
+}
+
+.layout-submenu-enter-from,
+.layout-submenu-leave-to {
+    max-height: 0;
+}
+
+.layout-submenu-enter-to,
+.layout-submenu-leave-from {
+    max-height: 1000px;
+}
+
+.layout-submenu-enter-active {
+    overflow: hidden;
+    transition: max-height 1s ease-in-out;
+}
+
+.layout-submenu-leave-active {
+    overflow: hidden;
+    transition: max-height 0.45s cubic-bezier(0, 1, 0, 1);
+}
