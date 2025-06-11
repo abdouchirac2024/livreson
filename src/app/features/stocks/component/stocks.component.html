@@ -5,7 +5,7 @@
   <div class="flex align-items-center justify-content-between mb-3 flex-wrap gap-3">
     <h2 class="w-full">Transfert de stock</h2>
     <!-- Filtres dynamiques -->
-    <div class="mb-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+    <div class="mb-6 p-fluid grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full">
 
       <!-- Date picker -->
       <app-date-range-picker [startDate]="startDate" [endDate]="endDate"
@@ -171,7 +171,7 @@
 <p-dialog header="Confirmation de transfert de stock" [(visible)]="displayTransferDialog" [modal]="true" [draggable]="false" [resizable]="false" (onHide)="cancelStockTransfer()">
   <div class="p-fluid grid pt-3">
     <div class="field col-12">
-      <p>Le stock sera transféré au coursier : <strong>{{selectedStocks[0].coursier?.fullname || selectedStocks[0].coursier_stock || 'Non assigné'}}</strong></p>
+      <p>Le stock sera transféré au coursier : <strong>{{selectedStocks[0]?.coursier?.fullname || selectedStocks[0]?.coursier_stock}}</strong></p>
       <p *ngIf="selectedStocks.length > 1">Nombre de stocks sélectionnés : {{selectedStocks.length}}</p>
     </div>
   </div>

@@ -11,7 +11,7 @@ import {CommonModule, DatePipe} from '@angular/common';
 import {SharedService} from '../../../_shared/services/shared.service';
 import {CityModel, DropdownOption, OrderStatus, ShopModel, ZoneModel} from '../../../_shared/model/shared.model';
 import {DeliveryMan} from '../../users/model/users.model';
-import {StockRequest, TransferStockRequest, ReturnStockRequest} from '../model/stock.model';
+import {StockModel, StockRequest, TransferStockRequest, ReturnStockRequest} from '../model/stock.model';
 import {
   DateRange,
   DateRangePickerComponent
@@ -40,31 +40,6 @@ import {UsersService} from '../../users/service/users.service';
 interface SimpleCourier {
   id: number;
   label: string;
-}
-
-interface StockModel {
-  stock_course_id: number;
-  course_id: number;
-  magasin: string;
-  code_course: string;
-  statut_course: string;
-  coursier?: {
-    id: number;
-    fullname: string;
-  };
-  coursier_stock?: string;
-  coursier_stock_id?: number;
-  panier?: Array<{
-    description?: string;
-    nom_produit?: string;
-  }>;
-  aLeStock: boolean;
-  stock_course?: {
-    statut_transfert?: string;
-  };
-  statut_transfert?: string;
-  gestionnaire: string;
-  date_livraison: string;
 }
 
 @Component({
@@ -325,19 +300,18 @@ export class StocksComponent implements OnInit {
       return;
     }
 
+    // Vérifier que tous les stocks sélectionnés ont le même coursier
     const firstCoursier = this.selectedStocks[0]?.coursier?.id || this.selectedStocks[0]?.coursier_stock_id;
-    if (!firstCoursier) {
-      this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de déterminer le coursier.' });
-      return;
-    }
-
-    // Vérifier que tous les stocks sélectionnés appartiennent au même coursier
     const allSameCoursier = this.selectedStocks.every(stock => 
       (stock.coursier?.id || stock.coursier_stock_id) === firstCoursier
     );
 
     if (!allSameCoursier) {
-      this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Tous les stocks doivent appartenir au même coursier.' });
+      this.messageService.add({ 
+        severity: 'error', 
+        summary: 'Erreur de sélection', 
+        detail: 'Tous les stocks sélectionnés doivent être du même coursier.' 
+      });
       return;
     }
 
@@ -346,61 +320,46 @@ export class StocksComponent implements OnInit {
 
   confirmStockTransfer(): void {
     if (!this.selectedStocks || this.selectedStocks.length === 0) {
-      this.messageService.add({ severity: 'warn', summary: 'Aucune sélection', detail: 'Veuillez sélectionner au moins un stock.' });
+      this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Aucun stock sélectionné pour le transfert.' });
+      this.displayTransferDialog = false;
       return;
     }
 
-    const firstCoursier = this.selectedStocks[0]?.coursier?.id || this.selectedStocks[0]?.coursier_stock_id;
-    if (!firstCoursier) {
-      this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de déterminer le coursier.' });
-      return;
-    }
+    this.isLoading = true;
 
-    // Vérifier que tous les stocks sélectionnés appartiennent au même coursier
-    const allSameCoursier = this.selectedStocks.every(stock => 
-      (stock.coursier?.id || stock.coursier_stock_id) === firstCoursier
-    );
-
-    if (!allSameCoursier) {
-      this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Tous les stocks doivent appartenir au même coursier.' });
-      return;
-    }
-
-    const transferRequests = this.selectedStocks.map(stock => {
+    const transferObservables = this.selectedStocks.map(stock => {
       if (!stock.course_id) {
-        throw new Error('ID de course manquant');
+        console.error('Stock sans course_id:', stock);
+        this.messageService.add({ severity: 'error', summary: 'Donnée manquante', detail: `L'ID de la course est manquant pour le stock: ${stock.code_course || 'ID inconnu'}.`});
+        return of({ success: false, error: 'Missing course_id', stock_code: stock.code_course });
       }
 
       const coursierId = stock.coursier?.id || stock.coursier_stock_id;
       if (!coursierId) {
-        throw new Error('ID de coursier manquant');
+        this.messageService.add({ severity: 'error', summary: 'Erreur Interne', detail: `ID du coursier manquant pour le stock: ${stock.code_course || 'ID inconnu'}.`});
+        return of({ success: false, error: 'Missing courier ID', stock_code: stock.code_course });
       }
 
-      const request: TransferStockRequest = {
-        course_id: stock.course_id,
-        coursier: coursierId,
+      const payload: TransferStockRequest = {
+        course_id: Number(stock.course_id),
+        coursier: Number(coursierId),
         stock_hors_panier: false,
         stock_panier: true
       };
-      return request;
-    });
 
-    this.isLoading = true;
-
-    const transferObservables = transferRequests.map(request => {
-      return this.stocksService.transferStockToCourier(request).pipe(
+      return this.stocksService.transferStockToCourier(payload).pipe(
         tap(response => {
           // Success message for individual stock can be handled here if needed
         }),
         catchError(error => {
-          console.error(`Erreur de transfert pour le stock ${request.course_id}:`, error);
+          console.error(`Erreur de transfert pour le stock ${stock.code_course}:`, error);
           const errorMessage = error.error?.message || error.message || 'Une erreur technique est survenue.';
           this.messageService.add({
             severity: 'error',
-            summary: `Échec transfert ${request.course_id}`,
+            summary: `Échec transfert ${stock.code_course || 'inconnu'}`,
             detail: errorMessage
           });
-          return of({ success: false, error: errorMessage, stock_code: request.course_id.toString() });
+          return of({ success: false, error: errorMessage, stock_code: stock.code_course });
         })
       );
     });
