@@ -352,28 +352,9 @@ export class PreparationComponent implements OnInit {
         ]
       },
       {
-        label: this.translateService.instant('export.pdf'),
-        icon: 'pi pi-file-pdf',
-        items: [
-          {label: this.translateService.instant('export.all'), icon: 'pi pi-file', command: () => this.exportAllToPdf()},
-          {label: this.translateService.instant('export.selected'), icon: 'pi pi-check-square', command: () => this.exportSelectedToPdf(), disabled: true},
-          {label: this.translateService.instant('export.detailed_pdf'), icon: 'pi pi-file-medical', command: () => this.exportDetailedPdf()}
-        ]
-      },
-      {
-        label: this.translateService.instant('export.csv'),
-        icon: 'pi pi-file',
-        command: () => {
-          this.messageService.add({severity: 'warn', summary: 'Export', detail: 'CSV export not yet implemented.'});
-        }
-      },
-      {
-        label: this.translateService.instant('export.print'),
-        icon: 'pi pi-print',
-        items: [
-          {label: this.translateService.instant('export.print_all'), icon: 'pi pi-print', command: () => this.printAll()},
-          {label: this.translateService.instant('export.print_selected'), icon: 'pi pi-check-square', command: () => this.printSelected(), disabled: true}
-        ]
+        label: this.translateService.instant('imprimer'),
+        icon: 'pi pi-file-medical',
+        command: () => this.exportDetailedPdf()
       }
     ];
     this.updateExportButtonStates();
@@ -404,36 +385,12 @@ export class PreparationComponent implements OnInit {
     this.exportService.exportToExcel(this.preparations, `preparation_colis_all_${this.datePipe.transform(new Date(), 'yyyyMMdd_HHmmss')}`);
   }
 
-  exportSelectedToPdf(): void {
-    if (this.selectedPreparations.length > 0) {
-      this.exportService.exportToPdf(this.selectedPreparations, `rapport_colis_selection_${this.datePipe.transform(new Date(), 'yyyyMMdd_HHmmss')}`);
-    } else {
-      this.messageService.add({severity: 'warn', summary: 'Export', detail: this.translateService.instant('export.no_selection')});
-    }
-  }
-
-  exportAllToPdf(): void {
-    this.exportService.exportToPdf(this.preparations, `rapport_colis_all_${this.datePipe.transform(new Date(), 'yyyyMMdd_HHmmss')}`);
-  }
-
   exportDetailedPdf(): void {
     if (this.selectedPreparations.length > 0) {
       this.exportService.printDetailed(this.selectedPreparations, `rapport_colis_detaille_selection_${this.datePipe.transform(new Date(), 'yyyyMMdd_HHmmss')}`);
     } else {
       this.messageService.add({severity: 'warn', summary: 'Export', detail: this.translateService.instant('export.no_selection')});
     }
-  }
-
-  printSelected(): void {
-    if (this.selectedPreparations.length > 0) {
-      this.exportService.printData(this.selectedPreparations, `rapport_colis_selection_${this.datePipe.transform(new Date(), 'yyyyMMdd_HHmmss')}`);
-    } else {
-      this.messageService.add({severity: 'warn', summary: 'Print', detail: this.translateService.instant('export.no_selection')});
-    }
-  }
-
-  printAll(): void {
-    this.exportService.printData(this.preparations, `rapport_colis_all_${this.datePipe.transform(new Date(), 'yyyyMMdd_HHmmss')}`);
   }
 
   showDetail(item: PreparationModel): void {

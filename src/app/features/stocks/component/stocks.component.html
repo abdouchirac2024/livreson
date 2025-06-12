@@ -88,9 +88,7 @@
     </div> <!-- Fin du div principal des filtres -->
 
     <!-- Bouton ACTION avec menu déroulant, placé après la grille des filtres -->
-    <div class="w-full md:w-auto mt-3 md:mt-0 flex gap-2"> <!-- Ajout d'un flex pour aligner les deux boutons -->
-      <p-button type="button" label="ACTION" icon="pi pi-cog" (click)="transferMenu.toggle($event)" [disabled]="!selectedStocks || selectedStocks.length === 0"></p-button>
-      <p-menu #transferMenu [model]="transferMenuItems" [popup]="true"></p-menu>
+    <div class="w-full md:w-auto mt-3 md:mt-0 flex gap-2">
       <!-- Nouveau bouton pour les actions de stock -->
       <p-button type="button" label="Actions Stock" icon="pi pi-sliders-h" (click)="stockActionsMenu.toggle($event)" [disabled]="!selectedStocks || selectedStocks.length === 0"></p-button>
       <p-menu #stockActionsMenu [model]="stockActionsMenuItems" [popup]="true"></p-menu>
